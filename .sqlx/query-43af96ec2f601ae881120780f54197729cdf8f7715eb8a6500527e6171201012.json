@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT r.user_id, r.unix\n        FROM rsvps AS r\n        INNER JOIN invitations AS i\n        ON r.invitation_id = i.id\n        WHERE i.msg_id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "unix",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "43af96ec2f601ae881120780f54197729cdf8f7715eb8a6500527e6171201012"
+}

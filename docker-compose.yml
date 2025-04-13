@@ -1,0 +1,35 @@
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql
+    networks:
+      - default
+    
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bot
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
+      BOT_TOKEN: ${BOT_TOKEN}
+      SQLX_OFFLINE: ${SQLX_OFFLINE}
+    depends_on:
+      - db
+    networks:
+      - default
+    
