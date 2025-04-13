@@ -18,9 +18,9 @@ type Context<'a> = poise::Context<'a, Data, Error>;
 
 fn geturl(input: &str) -> Option<String> {
     let link_re =
-        Regex::new(r"^https://link\.brawlstars\.com/invite/gameroom/[a-z]{2}\?tag=[A-Z0-9]+$")
+        Regex::new(r"^https://link\.brawlstars\.com/invite/gameroom/[a-z]{2}\?tag=[A-Za-z0-9]+$")
             .unwrap();
-    let code_re = Regex::new(r"^[A-Z0-9]{6,10}$").unwrap();
+    let code_re = Regex::new(r"^[A-Za-z0-9]{6,10}$").unwrap();
     if input.starts_with("https://link.brawlstars.com") && link_re.is_match(input) {
         return Some(input.to_string());
     } else if code_re.is_match(input) {
@@ -138,6 +138,7 @@ async fn inspect(
     let msg = CreateReply::default()
         .content("Here are the RSVPs")
         .reply(true)
+        .ephemeral(true)
         .attachment(csv_file);
     ctx.send(msg).await?;
 

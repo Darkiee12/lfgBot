@@ -27,7 +27,7 @@ pub async fn event_handler(
             let timestamp = id[1].clone();
             match id.len(){
                 2 => get_invite_link(ctx, component, data, &uid, &timestamp).await?,
-                3 => delete(ctx, component).await?,
+                3 => delete(ctx, component, uid).await?,
                 _ => {
                     return Ok(());
                 }
@@ -60,7 +60,7 @@ async fn get_invite_link(
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards")
         .as_secs() as i64;
-    let rsvp = sqlx::query!(r#"
+    sqlx::query!(r#"
         INSERT INTO rsvps (user_id, invitation_id, unix)
         VALUES ($1, $2, $3)
     "#, rsvpuid, invite.id, rsvpnow)
@@ -79,11 +79,11 @@ async fn get_invite_link(
 async fn delete(
     ctx: &serenity::Context,
     mci: &ComponentInteraction,
+    authorid: String,
 ) -> Result<(), Error> {
     let msgid = mci.message.id;
-    let author = mci.message.author.id;
-    let btnpresser = mci.user.id;
-    if author.eq(&btnpresser){
+    let btnpresser  = mci.user.id.to_string();
+    if authorid.eq(&btnpresser){
         mci.channel_id.delete_message(ctx, msgid).await?;
     } else{
         mci.create_response(ctx, CreateInteractionResponse::Message(
