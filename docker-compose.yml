@@ -1,6 +1,8 @@
 volumes:
   db_data:
     driver: local
+  redis_data:
+    driver: local
 
 networks:
   default:
@@ -18,18 +20,29 @@ services:
       - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql
     networks:
       - default
+
+  redis:
+    image: redis:8.0-rc1-alpine
+    container_name: slowmode
+    networks:
+      - default
+    volumes:
+      - redis_data:/data
     
   bot:
+    image: lfgbot:latest
     build:
       context: .
       dockerfile: Dockerfile
     container_name: bot
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
+      REDIS_URL: "redis://redis:6379"
       BOT_TOKEN: ${BOT_TOKEN}
       SQLX_OFFLINE: ${SQLX_OFFLINE}
     depends_on:
       - db
+      - redis
     networks:
       - default
     
